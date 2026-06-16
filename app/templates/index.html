@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrbitSense AI — Satellite Drag Prediction</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/xai.css" />
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<div id="toast-container" aria-live="polite"></div>
+<div id="loading-overlay" class="d-none">
+  <div class="loader-ring"></div>
+  <p class="loader-label">COMPUTING TRAJECTORY…</p>
+</div>
+
+<div class="dashboard-shell">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar-left">
+    <div class="brand-block">
+      <div class="brand-icon">⬡</div>
+      <div>
+        <div class="brand-name">OrbitSense AI</div>
+        <div class="brand-sub">AI-Powered Orbital Analytics</div>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="status-bar">
+      <span class="status-dot" id="api-dot"></span>
+      <span class="status-label" id="api-label">CONNECTING…</span>
+    </div>
+    <div class="sidebar-divider"></div>
+    <nav class="panel-nav" id="panel-nav">
+      <button class="nav-pill active" data-panel="predict-panel">
+        <span class="nav-icon">◈</span> PREDICT
+      </button>
+      <button class="nav-pill" data-panel="simulate-panel">
+        <span class="nav-icon">◉</span> SIMULATE
+      </button>
+    </nav>
+    <div class="sidebar-divider"></div>
+
+    <!-- PREDICT PANEL -->
+    <div id="predict-panel" class="input-panel active-panel">
+      <div class="panel-eyebrow">DRAG PREDICTION</div>
+      <div class="input-group-custom">
+        <label class="input-label">ALTITUDE <span class="unit">km</span></label>
+        <input type="number" id="p-altitude" class="hud-input" value="408" step="1" min="100" max="2000" />
+      </div>
+      <div class="input-group-custom">
+        <label class="input-label">VELOCITY <span class="unit">km/s</span></label>
+        <input type="number" id="p-velocity" class="hud-input" value="7.67" step="0.01" min="0.1" max="12" />
+      </div>
+      <div class="panel-eyebrow mt-3">SPACE WEATHER</div>
+      <div class="input-group-custom">
+        <label class="input-label">F10.7 <span class="unit">sfu</span></label>
+        <input type="number" id="p-f107" class="hud-input" value="150" step="1" min="60" max="300" />
+      </div>
+      <div class="input-group-custom">
+        <label class="input-label">Kp INDEX</label>
+        <input type="number" id="p-kp" class="hud-input" value="2" step="0.1" min="0" max="9" />
+      </div>
+      <div class="input-group-custom">
+        <label class="input-label">Ap INDEX <span class="unit">nT</span></label>
+        <input type="number" id="p-ap" class="hud-input" value="15" step="1" min="0" max="400" />
+      </div>
+      <button class="run-btn" id="btn-predict">
+        <span class="run-icon">▶</span> RUN PREDICTION
+      </button>
+    </div>
+
+    <!-- SIMULATE PANEL -->
+    <div id="simulate-panel" class="input-panel">
+      <div class="panel-eyebrow">ORBITAL PARAMETERS</div>
+      <div class="input-group-custom">
+        <label class="input-label">ALTITUDE <span class="unit">km</span></label>
+        <input type="number" id="s-altitude" class="hud-input" value="408" step="1" min="100" max="2000" />
+      </div>
+      <div class="input-group-custom">
+        <label class="input-label">STEPS</label>
+        <input type="number" id="s-steps" class="hud-input" value="500" step="10" min="1" max="10000" />
+      </div>
+      <div class="input-group-custom">
+        <label class="input-label">TIMESTEP <span class="unit">s</span></label>
+        <input type="number" id="s-dt" class="hud-input" value="10" step="1" min="1" max="300" />
+      </div>
+      <div class="input-group-custom">
+        <label class="input-label">MASS <span class="unit">kg</span></label>
+        <input type="number" id="s-mass" class="hud-input" value="420000" step="100" min="1" />
+      </div>
+      <div class="input-group-custom">
+        <label class="input-label">Cd</label>
+        <input type="number" id="s-cd" class="hud-input" value="2.2" step="0.1" min="0.1" />
+      </div>
+      <div class="input-group-custom">
+        <label class="input-label">AREA <span class="unit">m²</span></label>
+        <input type="number" id="s-area" class="hud-input" value="2500" step="10" min="0.1" />
+      </div>
+      <div class="panel-eyebrow mt-3">SPACE WEATHER</div>
+      <div class="input-group-custom">
+        <label class="input-label">F10.7 <span class="unit">sfu</span></label>
+        <input type="number" id="s-f107" class="hud-input" value="150" step="1" min="60" max="300" />
+      </div>
+      <div class="input-group-custom">
+        <label class="input-label">Kp INDEX</label>
+        <input type="number" id="s-kp" class="hud-input" value="2" step="0.1" min="0" max="9" />
+      </div>
+      <button class="run-btn run-btn--sim" id="btn-simulate">
+        <span class="run-icon">◎</span> LAUNCH SIMULATION
+      </button>
+    </div>
+  </aside>
+
+  <!-- CENTER STAGE -->
+  <main class="center-stage" style="padding:0;display:flex;flex-direction:column;">
+
+    <div style="padding:20px 24px 0;flex-shrink:0;">
+      <header class="mission-header" style="margin-bottom:12px;">
+        <div class="header-left">
+          <div class="mission-label">QUANTUM TELEMETRY DASHBOARD</div>
+          <h1 class="mission-title">Orbital Decay <span class="accent-word">Simulator</span></h1>
+        </div>
+        <div class="header-right">
+          <div class="time-block">
+            <div class="time-label">MISSION ELAPSED</div>
+            <div class="time-value" id="mission-clock">T+00:00:00</div>
+          </div>
+        </div>
+      </header>
+      <div class="top-tab-bar">
+        <button class="top-tab active" data-view="orbit-view">◉  ORBIT</button>
+        <button class="top-tab" data-view="charts-view">▦  CHARTS</button>
+        <button class="top-tab" data-view="xai-view">◈  AI ANALYSIS</button>
+      </div>
+    </div>
+
+    <!-- ORBIT VIEW -->
+    <div id="orbit-view" class="view-panel active-view" style="padding-top:14px;">
+      <div class="orbit-stage">
+        <canvas id="orbit-canvas"></canvas>
+        <div class="orbit-overlay">
+          <div class="orbit-metric" id="ov-altitude">
+            <span class="om-val">408.0</span>
+            <span class="om-unit">km ALT</span>
+          </div>
+          <div class="orbit-metric" id="ov-velocity">
+            <span class="om-val">7660</span>
+            <span class="om-unit">m/s VEL</span>
+          </div>
+        </div>
+        <div class="orbit-label-ring">LOW EARTH ORBIT · ECI FRAME · EULER INTEGRATION</div>
+      </div>
+    </div>
+
+    <!-- CHARTS VIEW -->
+    <div id="charts-view" class="view-panel" style="padding-top:14px;">
+      <div id="no-charts-msg" style="color:var(--text-secondary);font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-align:center;padding:60px 0;">
+        RUN A SIMULATION TO POPULATE CHARTS
+      </div>
+      <div id="chart-grid" class="chart-grid" style="display:none;">
+        <div class="chart-card" id="chart-altitude"></div>
+        <div class="chart-card" id="chart-drag"></div>
+        <div class="chart-card" id="chart-velocity"></div>
+        <div class="chart-card" id="chart-density"></div>
+      </div>
+    </div>
+
+    <!-- AI ANALYSIS VIEW (Phase 6) -->
+    <div id="xai-view" class="view-panel" style="padding-top:14px;">
+      <div class="xai-grid">
+
+        <!-- 1. Drag Hero -->
+        <div class="xai-panel">
+          <div class="xai-panel-title">PREDICTED DRAG FORCE</div>
+          <div class="drag-hero" id="xai-drag-hero">—</div>
+          <div class="drag-hero-unit">NEWTONS</div>
+          <div class="drag-hero-sub" id="xai-drag-sub">Run prediction to populate AI analysis</div>
+        </div>
+
+        <!-- 2. Primary Contributor -->
+        <div class="xai-panel">
+          <div class="xai-panel-title">PRIMARY CONTRIBUTOR</div>
+          <div class="contrib-hero">
+            <div class="contrib-icon" id="xai-primary-icon">◉</div>
+            <div>
+              <div class="contrib-feat" id="xai-primary-feat">—</div>
+              <div class="contrib-pct"  id="xai-primary-pct">awaiting analysis</div>
+            </div>
+          </div>
+          <div class="contrib-eq" id="xai-primary-eq">Physics equation will appear here</div>
+        </div>
+
+        <!-- 3. Mission Health + Re-entry Ladder -->
+        <div class="xai-panel">
+          <div class="xai-panel-title">MISSION HEALTH</div>
+          <div class="health-row">
+            <div class="health-dot green" id="xai-health-dot"></div>
+            <div>
+              <div class="health-status" id="xai-health-status" style="color:var(--green);">STABLE</div>
+              <div class="health-sub"    id="xai-health-sub">Awaiting data</div>
+            </div>
+          </div>
+          <div class="risk-ladder">
+            <div class="risk-rung r0 active">
+              <span class="risk-icon">◉</span>
+              <span class="risk-label">NOMINAL ORBIT</span>
+            </div>
+            <div class="risk-rung r1">
+              <span class="risk-icon">◎</span>
+              <span class="risk-label">ELEVATED DRAG</span>
+            </div>
+            <div class="risk-rung r2">
+              <span class="risk-icon">⚠</span>
+              <span class="risk-label">CRITICAL DECAY</span>
+            </div>
+            <div class="risk-rung r3">
+              <span class="risk-icon">🔴</span>
+              <span class="risk-label">RE-ENTRY IMMINENT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Feature Importance (spans 2 cols) -->
+        <div class="xai-panel xai-span2">
+          <div class="xai-panel-title">FEATURE CONTRIBUTIONS — SHAP-APPROXIMATE</div>
+          <div id="xai-feat-bars">
+            <div style="color:var(--text-secondary);font-family:var(--font-mono);font-size:10px;padding:16px 0;">
+              Run prediction to see feature importances
+            </div>
+          </div>
+          <div class="feat-source-note" id="xai-feat-source">◈ AWAITING MODEL DATA</div>
+        </div>
+
+        <!-- 5. Confidence Ring -->
+        <div class="xai-panel">
+          <div class="xai-panel-title">CONFIDENCE SCORE</div>
+          <div class="confidence-wrap">
+            <div class="conf-ring-wrap">
+              <canvas id="xai-conf-ring" width="100" height="100"></canvas>
+              <div class="conf-center">
+                <div class="conf-pct"  id="xai-conf-pct"  style="color:var(--green);">—</div>
+                <div class="conf-word" id="xai-conf-word">—</div>
+              </div>
+            </div>
+            <div class="conf-detail" id="xai-conf-detail">
+              <div class="conf-detail-row"><span>Run analysis to see details</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Orbital Lifetime -->
+        <div class="xai-panel">
+          <div class="xai-panel-title">ESTIMATED ORBITAL LIFETIME</div>
+          <div class="lifetime-block">
+            <div class="lt-val"  id="xai-lifetime-val">—</div>
+            <div class="lt-unit" id="xai-lifetime-unit">DAYS</div>
+          </div>
+          <div class="lt-caveat">Heuristic · No reboost assumed · m=500 kg, A=10 m², Cd=2.2</div>
+        </div>
+
+        <!-- 7. AI Explanation (spans 2 cols) -->
+        <div class="xai-panel xai-span2">
+          <div class="xai-panel-title">AI SYSTEM EXPLANATION</div>
+          <div class="expl-block" id="xai-explanation">
+            <div class="expl-sentence">
+              <span class="expl-bullet">[--]</span>
+              <span class="expl-text" style="color:var(--text-secondary);">
+                Run a prediction or simulation to generate an AI-powered analysis.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. Mission Recommendation -->
+        <div class="xai-panel">
+          <div class="xai-panel-title">MISSION RECOMMENDATION</div>
+          <div class="rec-block" id="xai-rec-block">
+            <div class="rec-label">AI COPILOT ASSESSMENT</div>
+            <div class="rec-text" id="xai-rec-text">
+              Awaiting prediction data. Run analysis to receive mission recommendation.
+            </div>
+            <div class="rec-action" id="xai-rec-action">STATUS: AWAITING DATA</div>
+          </div>
+        </div>
+
+        <!-- 9. History Table (full width) -->
+        <div class="xai-panel xai-span3">
+          <div class="xai-panel-title">PREDICTION HISTORY LOG</div>
+          <div style="max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--orange-dim) transparent;">
+            <table class="hist-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>ALTITUDE</th>
+                  <th>VELOCITY</th>
+                  <th>DRAG FORCE</th>
+                  <th>RISK</th>
+                  <th>TIME</th>
+                </tr>
+              </thead>
+              <tbody id="xai-hist-tbody">
+                <tr>
+                  <td colspan="6" style="color:var(--text-secondary);text-align:center;padding:14px;">
+                    No predictions yet
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /.xai-grid -->
+    </div><!-- /#xai-view -->
+
+  </main>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="sidebar-right">
+    <div class="panel-eyebrow">LIVE TELEMETRY</div>
+    <div class="telemetry-card glow-orange">
+      <div class="tc-label">PREDICTED DRAG FORCE</div>
+      <div class="tc-value" id="val-drag">—</div>
+      <div class="tc-unit">Newtons</div>
+      <div class="tc-bar"><div class="tc-bar-fill" id="bar-drag" style="width:0%"></div></div>
+    </div>
+    <div class="telemetry-card">
+      <div class="tc-label">CURRENT ALTITUDE</div>
+      <div class="tc-value" id="val-altitude">408.0</div>
+      <div class="tc-unit">km</div>
+      <div class="tc-bar"><div class="tc-bar-fill" id="bar-altitude" style="width:80%"></div></div>
+    </div>
+    <div class="telemetry-card">
+      <div class="tc-label">ORBITAL VELOCITY</div>
+      <div class="tc-value" id="val-velocity">7,660</div>
+      <div class="tc-unit">m/s</div>
+      <div class="tc-bar"><div class="tc-bar-fill" id="bar-velocity" style="width:76%"></div></div>
+    </div>
+    <div class="telemetry-card">
+      <div class="tc-label">ATMOS. DENSITY</div>
+      <div class="tc-value" id="val-density">—</div>
+      <div class="tc-unit">kg/m³</div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="panel-eyebrow">SPACE WEATHER</div>
+    <div class="weather-grid">
+      <div class="weather-cell">
+        <div class="wc-label">F10.7</div>
+        <div class="wc-val" id="wx-f107">150</div>
+        <div class="wc-unit">sfu</div>
+      </div>
+      <div class="weather-cell">
+        <div class="wc-label">Kp</div>
+        <div class="wc-val" id="wx-kp">2.0</div>
+        <div class="wc-unit">index</div>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="panel-eyebrow">RE-ENTRY STATUS</div>
+    <div class="reentry-card" id="reentry-card">
+      <div class="reentry-icon">◉</div>
+      <div class="reentry-text" id="reentry-text">NOMINAL ORBIT</div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="panel-eyebrow">SIMULATION SUMMARY</div>
+    <div class="summary-grid">
+      <div class="summary-cell"><div class="sc-label">STEPS</div><div class="sc-val" id="sum-steps">—</div></div>
+      <div class="summary-cell"><div class="sc-label">SIM TIME</div><div class="sc-val" id="sum-time">—</div></div>
+      <div class="summary-cell"><div class="sc-label">FINAL ALT</div><div class="sc-val" id="sum-alt">—</div></div>
+      <div class="summary-cell"><div class="sc-label">FINAL VEL</div><div class="sc-val" id="sum-vel">—</div></div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="panel-eyebrow">PREDICTION HISTORY</div>
+    <div id="history-list" class="history-list"></div>
+  </aside>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/script.js"></script>
+<script src="/static/js/xai.js"></script>
+
+<script>
+/* Bridge: after simulation, show charts tab; fix chart-grid display */
+document.getElementById('btn-simulate')?.addEventListener('click', () => {
+  setTimeout(() => {
+    const grid = document.getElementById('chart-grid');
+    const msg  = document.getElementById('no-charts-msg');
+    if (grid && grid.querySelectorAll('.js-plotly-plot').length > 0) {
+      grid.style.display = 'grid';
+      if (msg) msg.style.display = 'none';
+      document.querySelector('[data-view="charts-view"]')?.click();
+    }
+  }, 3600);
+});
+</script>
+
+</body>
+</html>
