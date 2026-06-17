@@ -15,4 +15,4 @@
 ![AI Analysis](Screenshots/ai-analysis2.png)
 
 ### Parameters
-![Parameters](Screenshots/parameter.png)
+![Parameters](Screenshots/parameters.png)
