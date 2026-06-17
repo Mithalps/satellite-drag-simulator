@@ -1,18 +1,18 @@
 ## Screenshots
 
 ### Main Dashboard
-![Dashboard](screenshots/dashboard.png)
+![Dashboard](Screenshots/dashboard.png)
 
 ### Prediction Results
-![Simulation](screenshots/prediction.png)
+![Simulation](Screenshots/prediction.png)
 
 ### Charts
-![Charts](screenshots/charts.png)
+![Charts](Screenshots/charts.png)
 
 ### AI Analysis
-![AI Analysis](screenshots/ai-analysis.png)
+![AI Analysis](Screenshots/ai-analysis.png)
 
-![AI Analysis](screenshots/ai-analysis2.png)
+![AI Analysis](Screenshots/ai-analysis2.png)
 
 ### Parameters
-![Parameters](screenshots/parameter.png)
+![Parameters](Screenshots/parameter.png)
