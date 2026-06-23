@@ -11,7 +11,6 @@
 [![Aerospace](https://img.shields.io/badge/Domain-Aerospace-0D47A1?style=for-the-badge&logoColor=white)](https://github.com)
 [![Space Weather](https://img.shields.io/badge/Space%20Weather-Analytics-FF8F00?style=for-the-badge&logoColor=white)](https://github.com)
 [![Orbital Mechanics](https://img.shields.io/badge/Orbital-Mechanics-1B5E20?style=for-the-badge&logoColor=white)](https://github.com)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)](https://github.com)
 
 <br/>
