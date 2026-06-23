@@ -69,25 +69,49 @@ Traditional analytic models (NRLMSISE-00, JB2008) are computationally intensive 
 
 ### Main Dashboard
 
-![Main Dashboard](Screenshots/dashboard_main.png)
+![Main Dashboard](Screenshots/dashboard.png)
 
 *Real-time mission control interface showing the orbital parameter input panel, live prediction outputs, mission health indicator, and 3D Earth orbital visualization.*
 
 ---
 
+### Input Parameters Panel
+
+![Input Parameters](Screenshots/parameters.png)
+
+*Orbital parameter and space weather input form — accepts altitude, orbital velocity, F10.7 solar flux, Kp index, and Ap index for prediction.*
+
+---
+
 ### Prediction Results
 
-![Prediction Results](Screenshots/prediction_results.png)
+![Prediction Results](Screenshots/prediction.png)
 
 *Detailed prediction output panel displaying drag force estimation, orbital lifetime, re-entry risk score, and mission health classification alongside the orbital decay visualization.*
 
 ---
 
-### Charts
+### Analytics Charts
 
 ![Analytics Charts](Screenshots/charts.png)
 
 *Plotly-rendered analytics suite showing drag force history, altitude decay curve, space weather correlation plots, and orbital lifetime trend analysis.*
+
+---
+
+### AI Analysis — Feature Importance
+
+![AI Analysis](Screenshots/ai-analysis.png)
+
+*AI explainability panel displaying feature importance scores and per-prediction contribution breakdown identifying the dominant factors driving each drag force estimate.*
+
+---
+
+### AI Analysis — Prediction Breakdown
+
+![AI Analysis Detail](Screenshots/ai-analysis2.png)
+
+*Extended explainability view showing a granular contribution chart per input variable, with plain-language summaries of the model's reasoning for the active prediction.*
 
 ---
 
@@ -371,9 +395,12 @@ orbitsense-ai/
 +-- LICENSE                         # MIT License
 |
 +-- Screenshots/                    # Application screenshots for README
-|   +-- dashboard_main.png          # Main mission control dashboard
-|   +-- prediction_results.png      # Prediction output panel
-|   +-- charts.png                  # Analytics charts view
+|   +-- dashboard.png               # Main mission control dashboard
+|   +-- parameters.png              # Orbital parameter input panel
+|   +-- prediction.png              # Prediction results output panel
+|   +-- charts.png                  # Analytics and Plotly charts view
+|   +-- ai-analysis.png             # AI explainability feature importance panel
+|   +-- ai-analysis2.png            # AI explainability prediction breakdown view
 |
 +-- models/                         # ML model artifacts
 |   +-- drag_model.pkl              # Trained Random Forest drag regressor (joblib)
@@ -626,24 +653,7 @@ pytest tests/ --cov=. --cov-report=html
 
 ---
 
-## Future Enhancements
 
-OrbitSense AI is designed as an extensible platform. Planned and proposed enhancements include:
-
-| Enhancement | Description | Priority |
-|-------------|-------------|----------|
-| **Real TLE Ingestion** | Parse Two-Line Element sets from Space-Track.org and Celestrak to initialize real satellite states | High |
-| **SGP4/SDP4 Propagator** | Integrate the industry-standard SGP4 propagator (python-sgp4) for high-fidelity orbital mechanics | High |
-| **Live Space Weather APIs** | Real-time integration with NOAA SWPC and NASA OMNIWeb APIs for live F10.7, Kp, and Ap data | High |
-| **Deep Learning Models** | Replace Random Forest with LSTM/Transformer models for time-series drag forecasting across orbital arcs | Medium |
-| **3D Orbital Visualization** | Full Three.js Earth globe with satellite orbit track rendering and decay trajectory animation | Medium |
-| **Multi-Satellite Support** | Constellation monitoring with batch prediction, comparison tables, and lifetime dashboard | Medium |
-| **Real-Time Telemetry** | WebSocket-based live telemetry ingestion from ground stations or simulated satellite feeds | Medium |
-| **NRLMSISE-00 Integration** | Replace exponential atmosphere with the full NRLMSISE-00 thermosphere model via PyNRLMSISE-00 | Low |
-| **Mobile-Responsive UI** | Progressive Web App (PWA) build with mobile-first mission control dashboard | Low |
-| **User Authentication** | Multi-user support with satellite fleet management, mission profiles, and prediction history per user | Low |
-
----
 
 ## Known Limitations
 
@@ -654,24 +664,6 @@ OrbitSense AI is designed as an extensible platform. Planned and proposed enhanc
 
 ---
 
-## Author
-
-<div align="center">
-
-### Mithal P Shetty
-
-*B.Tech Computer Science · RV University, Bengaluru (2027)*  
-*Research Focus: Deep Learning · Computer Vision · Space Data Analytics*
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/mithal-p-shetty)
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=for-the-badge&logo=github)](https://github.com/mithal-p-shetty)
-[![Email](https://img.shields.io/badge/Email-Contact-EA4335?style=for-the-badge&logo=gmail)](mailto:mithal@example.com)
-
-</div>
-
-> *If you find this project useful, consider giving it a star — it helps others discover the work and motivates continued development.*
-
----
 
 ## Acknowledgements
 
