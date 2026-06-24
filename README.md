@@ -314,10 +314,6 @@ Space weather is the single most volatile variable in LEO drag prediction. Orbit
 
 ## AI Explainability Module
 
-Trustworthy AI in safety-critical domains requires interpretability. OrbitSense AI includes a dedicated explainability panel that breaks down every prediction.
-
-### How It Works
-
 For each prediction, the platform computes:
 
 1. **Global Feature Importance** — which input variables are most influential across the entire trained model (based on mean decrease in impurity across all decision trees)
@@ -382,91 +378,6 @@ Propagated until h <= 80 km  (re-entry threshold)
 ### 5. Geomagnetic Storm Corrections
 During geomagnetic storms (Kp >= 5), Joule heating causes rapid density spikes. The Kp and Ap features allow the model to capture these transient but operationally critical events.
 
----
-
-## Project Structure
-
-```
-orbitsense-ai/
-|
-+-- app.py                          # Flask application entrypoint & route definitions
-+-- requirements.txt                # Python dependency manifest
-+-- README.md                       # Project documentation (this file)
-+-- LICENSE                         # MIT License
-|
-+-- Screenshots/                    # Application screenshots for README
-|   +-- dashboard.png               # Main mission control dashboard
-|   +-- parameters.png              # Orbital parameter input panel
-|   +-- prediction.png              # Prediction results output panel
-|   +-- charts.png                  # Analytics and Plotly charts view
-|   +-- ai-analysis.png             # AI explainability feature importance panel
-|   +-- ai-analysis2.png            # AI explainability prediction breakdown view
-|
-+-- models/                         # ML model artifacts
-|   +-- drag_model.pkl              # Trained Random Forest drag regressor (joblib)
-|   +-- lifetime_model.pkl          # Orbital lifetime regressor
-|   +-- scaler.pkl                  # Feature scaler (StandardScaler / MinMaxScaler)
-|
-+-- ml/                             # Machine learning module
-|   +-- train.py                    # Model training pipeline
-|   +-- predict.py                  # Inference utilities
-|   +-- features.py                 # Feature engineering functions
-|   +-- explainability.py           # Feature importance & SHAP proxy computations
-|   +-- evaluate.py                 # Model evaluation & cross-validation scripts
-|
-+-- physics/                        # Orbital mechanics & physics engine
-|   +-- drag_equation.py            # Drag force computation
-|   +-- atmosphere_model.py         # Exponential atmosphere & solar/geo corrections
-|   +-- rk4_propagator.py           # RK4 orbital decay integrator
-|   +-- ballistic_coefficient.py    # Ballistic coefficient utilities
-|   +-- reentry_estimator.py        # Re-entry risk and timeline estimator
-|
-+-- analytics/                      # Analytics & space weather modules
-|   +-- space_weather.py            # F10.7, Kp, Ap interpretation engine
-|   +-- mission_health.py           # Mission health classification logic
-|   +-- risk_assessment.py          # Re-entry risk scoring
-|   +-- history_tracker.py          # Prediction logging & retrieval
-|
-+-- database/                       # Data persistence layer
-|   +-- models.py                   # SQLAlchemy ORM models
-|   +-- db_init.py                  # Database initialization script
-|   +-- orbitsense.db               # SQLite database (auto-generated)
-|
-+-- data/                           # Training & reference datasets
-|   +-- synthetic_drag_dataset.csv  # Physics-simulated training data
-|   +-- solar_flux_reference.csv    # Historical F10.7 reference values
-|   +-- atmosphere_scale_heights.csv # Altitude-density lookup table
-|
-+-- static/                         # Frontend static assets
-|   +-- css/
-|   |   +-- main.css                # Global stylesheet
-|   |   +-- dashboard.css           # Mission control dashboard styles
-|   |   +-- space_theme.css         # Aerospace dark-mode design tokens
-|   +-- js/
-|   |   +-- dashboard.js            # Dashboard controller & chart management
-|   |   +-- orbital_viz.js          # Plotly/Three.js orbital visualization
-|   |   +-- explainability.js       # Explainability panel rendering
-|   |   +-- api_client.js           # REST API fetch utilities
-|
-+-- templates/                      # Jinja2 HTML templates
-|   +-- base.html                   # Base layout with nav and shared assets
-|   +-- index.html                  # Main dashboard page
-|   +-- history.html                # Prediction history log page
-|   +-- explain.html                # Standalone explainability view
-|   +-- about.html                  # Project info and methodology page
-|
-+-- tests/                          # Test suite
-|   +-- test_physics.py             # Unit tests for physics modules
-|   +-- test_ml_pipeline.py         # ML inference tests
-|   +-- test_api_routes.py          # Flask route integration tests
-|   +-- test_risk_assessment.py     # Risk scoring edge case tests
-|
-+-- notebooks/                      # Jupyter notebooks for exploration
-    +-- 01_data_generation.ipynb    # Synthetic dataset generation
-    +-- 02_eda_and_features.ipynb   # Exploratory data analysis
-    +-- 03_model_training.ipynb     # Model training walkthrough
-    +-- 04_drag_analysis.ipynb      # Drag analysis and visualization
-```
 
 ---
 
