@@ -24,13 +24,7 @@ def create_app(config_class=Config):
 
     @app.get("/")
     def index():
-        return jsonify(
-            {
-                "project": "AI-Powered Satellite Drag Prediction and Orbital Decay Simulator",
-                "phase": "1 - Data Foundation",
-                "status": "running",
-            }
-        )
+        return render_template("index.html")
 
     @app.get("/health")
     def health():
